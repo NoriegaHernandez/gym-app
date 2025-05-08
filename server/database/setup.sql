@@ -8,6 +8,8 @@ GO
 USE GymSystem;
 GO
 
+GRANT EXECUTE ON dbo.sp_RegistrarUsuario TO [gym_app_user];
+
 -- Tabla Usuarios
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Usuarios')
 BEGIN
@@ -828,6 +830,12 @@ BEGIN
     VALUES ('Administrador', 'admin@gym.com', 'admin123', 'administrador', 'activo');
 END
 
+UPDATE Usuarios
+SET contraseña = 'mbopcqxzblxwmnjr'
+WHERE contraseña = 'zywbUm-jovbuj-3cedxu';
+
+
+
 -- Insertar algunos ejercicios básicos
 IF NOT EXISTS (SELECT 1 FROM Ejercicios WHERE nombre = 'Sentadillas')
 BEGIN
@@ -841,4 +849,219 @@ BEGIN
     VALUES ('Press de Banca', 'Ejercicio para pecho', 'Acuéstate en el banco y empuja la barra hacia arriba', 'Pectorales, tríceps, hombros', 'Banco, barra con pesas');
 END
 
+
+
+-- Actualizaciones a la tabla Usuarios para incluir campos de verificación
+
+-- Validar si las columnas ya existen antes de añadirlas
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Usuarios') AND name = 'verification_token')
+BEGIN
+    ALTER TABLE Usuarios
+    ADD verification_token VARCHAR(255) NULL;
+END
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Usuarios') AND name = 'token_expires')
+BEGIN
+    ALTER TABLE Usuarios
+    ADD token_expires DATETIME NULL;
+END
+
+-- Índice para búsqueda rápida por token
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'idx_usuarios_verification_token')
+BEGIN
+    CREATE INDEX idx_usuarios_verification_token ON Usuarios(verification_token);
+END
+
+use GymSystem
+
 SELECT * FROM Usuarios
+SELECT * FROM Asignaciones_Coach_Cliente
+
+SELECT * FROM sys.check_constraints
+WHERE parent_object_id = OBJECT_ID('Usuarios');
+
+
+SELECT definition 
+FROM sys.check_constraints 
+WHERE name = 'CK__Asignacio__estad__6B24EA82';
+
+
+ALTER TABLE Asignaciones_Coach_Cliente 
+DROP CONSTRAINT CK__Asignacio__estad__6B24EA82;
+
+ALTER TABLE Asignaciones_Coach_Cliente 
+ADD CONSTRAINT CK_Asignaciones_Estado 
+CHECK (estado IN ('activa', 'pendiente', 'rechazada'));
+
+
+
+-- Verificar si hay registros en Asignaciones_Coach_Cliente
+SELECT * FROM Asignaciones_Coach_Cliente;
+
+-- Verificar si hay entrenadores configurados correctamente
+SELECT c.id_coach, u.id_usuario, u.nombre, u.email, u.tipo_usuario 
+FROM Coaches c
+JOIN Usuarios u ON c.id_usuario = u.id_usuario;
+
+-- Verificar si hay asignaciones activas para algún entrenador
+SELECT a.*, uc.nombre AS nombre_coach, uc.email AS email_coach, 
+       us.nombre AS nombre_cliente, us.email AS email_cliente
+FROM Asignaciones_Coach_Cliente a
+JOIN Coaches c ON a.id_coach = c.id_coach
+JOIN Usuarios uc ON c.id_usuario = uc.id_usuario
+JOIN Usuarios us ON a.id_usuario = us.id_usuario
+WHERE a.estado = 'activa';
+
+
+UPDATE Asignaciones_Coach_Cliente
+SET estado = 'pendiente'
+WHERE id_asignacion = 3;
+
+use GymSystem
+SELECT * FROM Usuarios
+
+
+-- Ver la restricción actual
+SELECT definition 
+FROM sys.check_constraints 
+WHERE name = 'CK__Usuarios__estado__4CA06362';
+
+-- Modificar la restricción para incluir 'pendiente'
+ALTER TABLE Usuarios 
+DROP CONSTRAINT CK__Usuarios__estado__4CA06362;
+
+ALTER TABLE Usuarios 
+ADD CONSTRAINT CK_Usuarios_Estado 
+CHECK (estado IN ('activo', 'inactivo', 'suspendido', 'pendiente'));
+
+DELETE FROM Usuarios
+WHERE email = 'jesusrlc15@gmail.com';
+
+DELETE FROM Usuarios
+WHERE email = 'ivanjorge0310@gmail.com';
+
+select * from Usuarios
+select * from ejercicios
+
+use GymSystem
+
+-- 1. Vista para que cada usuario vea solo su propia información
+IF EXISTS (SELECT * FROM sys.views WHERE name = 'vw_usuario_actual')
+BEGIN
+    DROP VIEW vw_usuario_actual;
+END
+GO
+
+CREATE VIEW vw_usuario_actual
+AS
+SELECT 
+    id_usuario, 
+    nombre, 
+    email, 
+    telefono, 
+    direccion, 
+    fecha_nacimiento, 
+    tipo_usuario, 
+    estado, 
+    fecha_registro
+FROM 
+    Usuarios 
+WHERE 
+    id_usuario = CONVERT(INT, CONTEXT_INFO())
+GO
+
+-- Verificar los permisos actuales del usuario de la aplicación
+SELECT 
+    DP1.name AS [Usuario], 
+    DP2.name AS [Tabla], 
+    O.permission_name AS [Permiso]
+FROM sys.database_permissions O
+INNER JOIN sys.database_principals DP1 
+    ON O.grantee_principal_id = DP1.principal_id
+INNER JOIN sys.objects DP2 
+    ON O.major_id = DP2.object_id
+WHERE DP1.name = 'gym_app_user' -- Nombre del usuario de la aplicación
+ORDER BY [Usuario], [Tabla], [Permiso];
+GO
+
+GRANT SELECT ON vw_usuarios_completos TO [gym_app_user];
+
+
+SELECT * FROM Asignaciones_Coach_Cliente
+
+GRANT UPDATE ON dbo.Usuarios TO [gym_app_user];
+
+select * from Usuarios
+
+
+-- Procedimiento almacenado para actualizar perfil de usuario
+IF NOT EXISTS (SELECT * FROM sys.procedures WHERE name = 'sp_ActualizarPerfilUsuario')
+BEGIN
+    EXEC('
+    CREATE PROCEDURE sp_ActualizarPerfilUsuario
+        @id_usuario INT,
+        @nombre VARCHAR(100),
+        @email VARCHAR(100),
+        @telefono VARCHAR(20) = NULL,
+        @direccion VARCHAR(200) = NULL,
+        @fecha_nacimiento DATE = NULL
+    AS
+    BEGIN
+        BEGIN TRY
+            BEGIN TRANSACTION;
+            
+            -- Verificar que el usuario exista
+            IF NOT EXISTS (SELECT 1 FROM Usuarios WHERE id_usuario = @id_usuario)
+            BEGIN
+                RAISERROR(''El usuario no existe'', 16, 1);
+                RETURN;
+            END
+            
+            -- Verificar que el email no esté ya en uso por otro usuario
+            IF EXISTS (SELECT 1 FROM Usuarios WHERE email = @email AND id_usuario != @id_usuario)
+            BEGIN
+                RAISERROR(''El email ya está en uso por otro usuario'', 16, 1);
+                RETURN;
+            END
+            
+            -- Actualizar el usuario
+            UPDATE Usuarios
+            SET 
+                nombre = @nombre,
+                email = @email,
+                telefono = @telefono,
+                direccion = @direccion,
+                fecha_nacimiento = @fecha_nacimiento
+            WHERE 
+                id_usuario = @id_usuario;
+            
+            COMMIT TRANSACTION;
+            
+            -- Retornar los datos actualizados
+            SELECT 
+                id_usuario,
+                nombre,
+                email,
+                telefono,
+                direccion,
+                fecha_nacimiento,
+                tipo_usuario,
+                fecha_registro,
+                estado
+            FROM
+                Usuarios
+            WHERE
+                id_usuario = @id_usuario;
+        END TRY
+        BEGIN CATCH
+            ROLLBACK TRANSACTION;
+            THROW;
+        END CATCH
+    END;
+    ');
+END;
+
+-- Otorgar permiso de ejecución al usuario de la aplicación
+GRANT EXECUTE ON dbo.sp_ActualizarPerfilUsuario TO [gym_app_user];
+
+select * from Usuarios

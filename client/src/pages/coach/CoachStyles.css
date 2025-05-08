@@ -1,0 +1,556 @@
+
+.client-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .client-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .client-avatar {
+    width: 50px;
+    height: 50px;
+    background-color: #f0f0f0;
+    border-radius: 50%;
+    margin-right: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .client-details {
+    flex: 1;
+  }
+  
+  .client-details h3 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+  }
+  
+  .client-details p {
+    margin: 0;
+    color: #777;
+    font-size: 14px;
+  }
+  
+  .assignment-date {
+    margin-top: 5px !important;
+    font-size: 12px !important;
+    color: #999 !important;
+  }
+  
+  .client-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  
+  .coach-button {
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    flex: 1;
+  }
+  
+  .coach-button.primary {
+    background-color: #ff9966;
+    color: white;
+  }
+  
+  .coach-button.primary:hover {
+    background-color: #ff8c52;
+  }
+  
+  .coach-button.secondary {
+    background-color: #f0f0f0;
+    color: #333;
+  }
+  
+  .coach-button.secondary:hover {
+    background-color: #e5e5e5;
+  }
+  
+  .request-table-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+  
+  .coach-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .coach-table th, .coach-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    color: #333; 
+  }
+  
+  .coach-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .action-button {
+    border: none;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .action-button.accept {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .action-button.accept:hover {
+    background-color: #c3e6cb;
+  }
+  
+  .action-button.reject {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .action-button.reject:hover {
+    background-color: #f5c6cb;
+  }
+  
+  @media (max-width: 768px) {
+    .coach-container {
+      flex-direction: column;
+    }
+    
+    .coach-sidebar {
+      width: 100%;
+      padding: 10px 0;
+    }
+    
+    .coach-nav {
+      flex-direction: row;
+      overflow-x: auto;
+      padding: 10px;
+    }
+    
+    .coach-nav-button {
+      flex: 1;
+      text-align: center;
+      white-space: nowrap;
+    }
+    
+    .coach-content {
+      padding: 15px;
+      color: #333;
+    }
+    
+    .client-cards {
+      grid-template-columns: 1fr;
+      background-color: white;
+      color: #333;
+    }
+    
+    .coach-table {
+      display: block;
+      overflow-x: auto;
+    }
+  }
+
+  /* client/src/pages/coach/CoachStyles.css */
+.coach-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  color: #333; /* Asegurar texto visible */
+}
+
+.coach-sidebar {
+  width: 220px;
+  background: linear-gradient(to bottom, #ff9966, #ffdb58);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+}
+
+.coach-logo {
+  padding: 0 20px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.logo-circle {
+  width: 80px;
+  height: 80px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.coach-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px;
+}
+
+.coach-nav-button {
+  background: none;
+  border: none;
+  color: white;
+  padding: 12px 15px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 8px;
+  margin-bottom: 5px;
+  transition: all 0.3s;
+}
+
+.coach-nav-button:hover, .coach-nav-button.active {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.coach-content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.coach-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.coach-header h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.coach-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #333;
+}
+
+.coach-avatar {
+  width: 40px;
+  height: 40px;
+  background-color: #ff9966;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.coach-tabs {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+.coach-tab {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #555;
+  cursor: pointer;
+  position: relative;
+}
+
+.coach-tab.active {
+  color: #ff9966;
+  font-weight: 500;
+}
+
+.coach-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #ff9966;
+}
+
+.notification-badge {
+  display: inline-block;
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 5px;
+}
+
+.coach-section {
+  margin-bottom: 30px;
+}
+
+.coach-section h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 18px;
+  color: #333;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 30px;
+  background-color: white;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  color: #777;
+}
+
+.client-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.client-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+.client-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.client-avatar {
+  width: 50px;
+  height: 50px;
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  margin-right: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.client-details {
+  flex: 1;
+}
+
+.client-details h3 {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.client-details p {
+  margin: 0;
+  color: #777;
+  font-size: 14px;
+}
+
+.assignment-date {
+  margin-top: 5px !important;
+  font-size: 12px !important;
+  color: #999 !important;
+}
+
+.client-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.coach-button {
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.coach-button.primary {
+  background-color: #ff9966;
+  color: white;
+}
+
+.coach-button.primary:hover {
+  background-color: #ff8c52;
+}
+
+.coach-button.secondary {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.coach-button.secondary:hover {
+  background-color: #e5e5e5;
+}
+
+.request-table-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.coach-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.coach-table th, .coach-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  color: #333;
+}
+
+.coach-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.table-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.action-button {
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.action-button.accept {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.action-button.accept:hover {
+  background-color: #c3e6cb;
+}
+
+.action-button.reject {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.action-button.reject:hover {
+  background-color: #f5c6cb;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 0;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #ff9966;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.notification {
+  padding: 12px 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  animation: fadeIn 0.3s, fadeOut 0.3s 2.7s;
+}
+
+.notification.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.notification.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (max-width: 768px) {
+  .coach-container {
+    flex-direction: column;
+  }
+  
+  .coach-sidebar {
+    width: 100%;
+    padding: 10px 0;
+  }
+  
+  .coach-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 10px;
+  }
+  
+  .coach-nav-button {
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
+  }
+  
+  .coach-content {
+    padding: 15px;
+  }
+  
+  .client-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .coach-table {
+    display: block;
+    overflow-x: auto;
+  }
+}

@@ -1,0 +1,596 @@
+
+/* Nuevos estilos del template proporcionado */
+/* client/src/styles/Auth.css - Combinando los estilos originales con los nuevos */
+
+/* Estilos originales del sistema */
+/* Ajustes para el cuerpo y HTML para asegurar que ocupe toda la pantalla */
+/* Ajustes para el cuerpo y HTML para asegurar que ocupe toda la pantalla */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden; /* Evitar scroll horizontal */
+}
+
+body {
+  font-family: Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh; /* Asegurar que el contenedor raíz ocupe toda la altura */
+}
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f5f7fa;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 450px;
+  padding: 30px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.auth-title {
+  margin: 0 0 10px;
+  font-size: 24px;
+  color: #333;
+  text-align: center;
+}
+
+.auth-subtitle {
+  margin: 0 0 25px;
+  font-size: 16px;
+  color: #666;
+  text-align: center;
+}
+
+.auth-form {
+  margin-bottom: 20px;
+}
+
+.auth-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.auth-button:hover {
+  background-color: #3a80d2;
+}
+
+.auth-button:disabled {
+  background-color: #a0c3e8;
+  cursor: not-allowed;
+}
+
+/* Asegurar que todo el texto en los contenedores principales sea visible */
+.registro-box, .login-box, .auth-card {
+  color: #333;
+}
+
+.auth-links {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #333;
+}
+
+.auth-links a {
+  color: #4a90e2;
+  text-decoration: none;
+}
+
+.auth-links a:hover {
+  text-decoration: underline;
+}
+
+.auth-error {
+  padding: 12px;
+  margin-bottom: 20px;
+  background-color: #ffebee;
+  color: #d32f2f;
+  border-radius: 5px;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Nuevos estilos del template proporcionado */
+/* Configuración de pantalla completa para el contenedor principal */
+.old-auth-container, .login-container {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to right, #ff9966, #ffde59);
+  min-height: 100vh; /* Usar min-height en lugar de height */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box; /* Para evitar desbordamiento */
+  padding: 20px; /* Espacio para dispositivos móviles */
+}
+
+.registro-box {
+  width: 100%;
+  max-width: 400px;
+  background-color: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  border: 2px solid #4a9ced;
+  margin: 0 auto;
+}
+
+.titulo {
+  color: #ff9966;
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.input-container {
+  margin-bottom: 15px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.icon {
+  width: 25px;
+  height: 25px;
+  margin-right: 10px;
+}
+
+.input-container input,
+.input-container select {
+  width: 100%;
+  padding: 8px 0;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  outline: none;
+  font-size: 16px;
+  background-color: transparent;
+  color: #333; /* Color de texto oscuro para los campos de entrada */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+}
+
+.toggle-password:hover {
+  color: #4a90e2;
+}
+
+.crear-btn {
+  background: linear-gradient(to right, #ff9966, #ffde59);
+  color: white;
+  border: none;
+  padding: 12px 40px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  width: 100%;
+  opacity: 0.5; /* Botón desactivado por defecto */
+  pointer-events: none; /* No clickeable por defecto */
+}
+
+.crear-btn.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tipo-membresia {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.membresia-pill {
+  background-color: #ffde59;
+  color: white;
+  padding: 5px 15px;
+  border-radius: 15px;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+#mensajeExito {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #4CAF50;
+  color: white;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  z-index: 100;
+}
+
+.terminos-container {
+  margin-top: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 15px;
+  height: 150px;
+  overflow-y: auto;
+  text-align: left;
+  font-size: 12px;
+  margin-bottom: 15px;
+  background-color: #f9f9f9;
+  color: #333; /* Color de texto oscuro para los términos y condiciones */
+}
+
+.terminos-container h3 {
+  margin-top: 0;
+  font-size: 14px;
+  color: #555; /* Color para los encabezados */
+}
+
+.terminos-container p {
+  margin-bottom: 10px;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.checkbox-container input {
+  width: auto;
+  margin-right: 10px;
+}
+
+.checkbox-container label {
+  color: #333; /* Color de texto oscuro para la etiqueta del checkbox */
+  font-size: 14px;
+}
+
+/* Estilos para formularios en general */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #4a90e2;
+}
+
+.input-error {
+  color: #d32f2f;
+  font-size: 12px;
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+/* Asegurar que los selects muestren texto negro */
+/* Estilos para los selects */
+select {
+  color: #333 !important;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  padding: 8px 0;
+  width: 100%;
+  outline: none;
+  font-size: 16px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Estilo para las opciones del select */
+option {
+  color: #333;
+  background-color: white;
+}
+
+/* Estilos responsivos mejorados */
+@media (max-width: 480px) {
+  .registro-box, .login-box, .auth-card {
+    padding: 20px;
+    max-width: 100%; /* Ocupar todo el ancho disponible en móviles */
+    margin: 10px;
+    max-height: 85vh; /* Altura máxima para móviles */
+  }
+  
+  .titulo, .auth-title {
+    font-size: 22px;
+  }
+  
+  .auth-subtitle {
+    font-size: 14px;
+  }
+  
+  .input-container {
+    margin-bottom: 12px; /* Reducir espaciado vertical en móviles */
+  }
+  
+  .crear-btn, .login-btn {
+    padding: 10px; /* Botones más pequeños en móviles */
+  }
+  
+  .terminos-container {
+    height: 120px; /* Reducir altura en móviles */
+  }
+}
+
+/* Estilos para tablets */
+@media (min-width: 481px) and (max-width: 768px) {
+  .registro-box, .login-box, .auth-card {
+    max-width: 90%;
+  }
+}
+
+/* Estilos para pantallas grandes */
+@media (min-width: 1200px) {
+  .registro-box, .login-box, .auth-card {
+    max-width: 500px; /* Ligeramente más ancho en pantallas grandes */
+  }
+}
+
+/* Estilos para página de Login adaptada al nuevo diseño */
+.login-container {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to right, #ff9966, #ffde59);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 400px;
+  background-color: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  border: 2px solid #4a9ced;
+}
+
+.login-btn {
+  background: linear-gradient(to right, #ff9966, #ffde59);
+  color: white;
+  border: none;
+  padding: 12px 40px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.login-btn:hover {
+  opacity: 0.9;
+}
+
+.login-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Clase para elementos ocultos */
+.hidden {
+  display: none;
+}
+
+
+/* Estilos para las páginas de verificación - Añadir al archivo Auth.css */
+
+/* Estilos del contenedor de verificación */
+.verification-box {
+  width: 100%;
+  max-width: 500px;
+  background-color: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  border: 2px solid #4a9ced;
+  margin: 0 auto;
+  text-align: center;
+  color: #333;
+}
+
+/* Iconos */
+.verification-icon,
+.success-icon,
+.error-icon,
+.expired-icon {
+  font-size: 50px;
+  margin: 20px 0;
+}
+
+.success-icon {
+  color: #4CAF50;
+}
+
+.error-icon {
+  color: #F44336;
+}
+
+.expired-icon {
+  color: #FF9800;
+}
+
+/* Loading spinner */
+.spinner {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #4a9ced;
+  animation: spin 1s ease-in-out infinite;
+  margin: 20px 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Contenido de la verificación */
+.verification-content {
+  margin: 20px 0;
+}
+
+.verification-email {
+  font-weight: bold;
+  color: #4a9ced;
+  font-size: 18px;
+  margin: 10px 0;
+  word-break: break-all; /* Para emails largos */
+}
+
+.verification-tip {
+  background-color: #FFF9C4;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.verification-actions {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.verification-btn {
+  background: linear-gradient(to right, #ff9966, #ffde59);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-bottom: 15px;
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.verification-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.verification-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.verification-link {
+  color: #4a9ced;
+  text-decoration: none;
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+.verification-link:hover {
+  text-decoration: underline;
+}
+
+.verification-links {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Mensajes de reenvío */
+.resend-message {
+  padding: 12px;
+  margin: 15px 0;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.resend-message.success {
+  background-color: #E8F5E9;
+  color: #2E7D32;
+}
+
+.resend-message.error {
+  background-color: #FFEBEE;
+  color: #C62828;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .verification-box {
+    padding: 20px;
+    max-width: 90%;
+  }
+  
+  .verification-icon,
+  .success-icon,
+  .error-icon,
+  .expired-icon {
+    font-size: 40px;
+  }
+  
+  .verification-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    width: 100%;
+  }
+  
+  .verification-links {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

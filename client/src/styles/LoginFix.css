@@ -1,0 +1,71 @@
+/* client/src/styles/LoginFix.css */
+
+/* Resetear estilos globales que afectan el centrado */
+#root {
+    max-width: none !important; /* Anular la restricción de ancho */
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100vh !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: unset !important; /* Permitir alineación de texto natural */
+  }
+  
+  /* Ajustar el contenedor de login */
+  .login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to right, #ff9966, #ffdb58) !important; /* Fondo blanco en lugar del naranja */
+    background-image: none !important; /* Eliminar el degradado */
+  }
+  
+  /* Ajustar el cuadro de login */
+  .login-box {
+    width: 100%;
+    max-width: 400px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 0;
+  }
+  
+  /* Mejorar la visualización del formulario */
+  .input-container {
+    margin-bottom: 20px;
+  }
+  
+  /* Botón principal consistente */
+  .login-btn {
+    background-color: #3498db !important;
+    background-image: none !important;
+    color: white;
+    width: 100%;
+    padding: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+    border: none;
+    transition: background-color 0.3s;
+  }
+  
+  .login-btn:hover {
+    background-color: #2980b9 !important;
+  }
+  
+  /* Asegurar que el body no interfiera */
+  body {
+    margin: 0;
+    min-width: 100%;
+    min-height: 100vh;
+    display: flex;
+    place-items: unset;
+  }
