@@ -753,6 +753,191 @@ getUserNotifications: async () => {
     return []; // Retornar array vacío en caso de error
   }
 
+},
+
+// Funciones para la gestión de membresías desde el panel de administración
+
+// Obtener usuarios con sus datos de membresía
+getUsersWithMemberships: async () => {
+  try {
+    const response = await axiosInstance.get('/admin/users-with-memberships');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener usuarios con membresías:', error);
+    throw error;
+  }
+},
+
+// Obtener todos los planes disponibles
+getAvailablePlans: async () => {
+  try {
+    const response = await axiosInstance.get('/admin/plans');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener planes disponibles:', error);
+    throw error;
+  }
+},
+
+// Crear una nueva membresía
+createMembership: async (membershipData) => {
+  try {
+    const response = await axiosInstance.post('/admin/memberships', membershipData);
+    return response.data;
+  } catch (error) {
+    console.error('Error al crear membresía:', error);
+    throw error;
+  }
+},
+
+// Actualizar una membresía existente
+updateMembership: async (id, membershipData) => {
+  try {
+    const response = await axiosInstance.put(`/admin/memberships/${id}`, membershipData);
+    return response.data;
+  } catch (error) {
+    console.error('Error al actualizar membresía:', error);
+    throw error;
+  }
+},
+
+// Cancelar una membresía
+cancelMembership: async (id) => {
+  try {
+    const response = await axiosInstance.post(`/admin/memberships/${id}/cancel`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al cancelar membresía:', error);
+    throw error;
+  }
+},
+
+// Renovar una membresía
+renewMembership: async (id, membershipData) => {
+  try {
+    const response = await axiosInstance.post(`/admin/memberships/${id}/renew`, membershipData);
+    return response.data;
+  } catch (error) {
+    console.error('Error al renovar membresía:', error);
+    throw error;
+  }
+},
+
+// Obtener historial de membresías de un usuario
+getUserMembershipHistory: async (userId) => {
+  try {
+    const response = await axiosInstance.get(`/admin/users/${userId}/membership-history`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener historial de membresías:', error);
+    throw error;
+  }
+},
+
+// Actualización para api.js para funcionar con SQL Server
+
+// Función para probar la conexión
+testConnection: async () => {
+  try {
+    const response = await axiosInstance.get('/test');
+    console.log('Conexión exitosa al servidor:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error en la prueba de conexión:', error);
+    throw error;
+  }
+},
+
+// Funciones para clientes - sección de membresías
+getCurrentUserMembership: async () => {
+  try {
+    console.log('Solicitando información de membresía del usuario actual');
+    const response = await axiosInstance.get('/usuarios/current/membresia');
+    console.log('Respuesta de membresía recibida:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener membresía del usuario:', error);
+    
+    // Incluso en caso de error, devolvemos un estado mínimo para evitar errores en la UI
+    return { 
+      estado_membresia: 'inactiva',
+      // Si tenemos información del usuario, incluirla
+      id_usuario: localStorage.getItem('userId') || null,
+    };
+  }
+},
+
+getClientAvailablePlans: async () => {
+  try {
+    console.log('Solicitando planes disponibles para el cliente');
+    const response = await axiosInstance.get('/planes');
+    console.log('Planes disponibles recibidos:', response.data);
+    return response.data || [];
+  } catch (error) {
+    console.error('Error al obtener planes disponibles:', error);
+    return []; // Retornar array vacío en caso de error
+  }
+},
+
+createClientMembership: async (membershipData) => {
+  try {
+    console.log('Creando nueva membresía para el cliente:', membershipData);
+    
+    // Validar datos antes de enviar
+    if (!membershipData.id_plan || !membershipData.tipo_plan) {
+      throw new Error('Datos incompletos para crear membresía');
+    }
+    
+    const response = await axiosInstance.post('/membresias', membershipData);
+    console.log('Respuesta de creación de membresía:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error al crear membresía para el cliente:', error);
+    throw error;
+  }
+},
+
+renewClientMembership: async (id_suscripcion, membershipData) => {
+  try {
+    console.log('Renovando membresía:', id_suscripcion, membershipData);
+    
+    // Validar datos antes de enviar
+    if (!membershipData.id_plan || !membershipData.tipo_plan) {
+      throw new Error('Datos incompletos para renovar membresía');
+    }
+    
+    const response = await axiosInstance.put(`/membresias/${id_suscripcion}/renovar`, membershipData);
+    console.log('Respuesta de renovación de membresía:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error al renovar membresía:', error);
+    throw error;
+  }
+},
+
+cancelClientMembership: async (id_suscripcion) => {
+  try {
+    console.log('Cancelando membresía:', id_suscripcion);
+    const response = await axiosInstance.put(`/membresias/${id_suscripcion}/cancelar`);
+    console.log('Respuesta de cancelación de membresía:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error al cancelar membresía:', error);
+    throw error;
+  }
+},
+
+// Esta función es opcional, sólo si necesitas ver el historial
+getClientMembershipHistory: async () => {
+  try {
+    console.log('Solicitando historial de membresías');
+    const response = await axiosInstance.get('/membresias/historial');
+    console.log('Historial de membresías recibido:', response.data);
+    return response.data || [];
+  } catch (error) {
+    console.error('Error al obtener historial de membresías:', error);
+    return []; // Retornar array vacío en caso de error
+  }
 }
 };
 

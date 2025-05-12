@@ -104,8 +104,8 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-box">
-        <h2 className="titulo">Iniciar Sesión</h2>
-        <p className="auth-subtitle">Accede a tu cuenta de Fitness Gym</p>
+        <h2 className="titulo">INICIAR SESIÓN</h2>
+        <p className="auth-subtitle">ACCEDE A TU CUENTA DE FITNESS GYM</p>
         
         {error && !verificationNeeded && (
           <div className="auth-error">

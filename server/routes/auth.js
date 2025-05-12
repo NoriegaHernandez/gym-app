@@ -886,6 +886,8 @@ router.put('/profile', authMiddleware, async (req, res) => {
   }
 });
 
+
+
 // Ruta para cambiar contraseña del usuario actual
 router.put('/change-password', authMiddleware, async (req, res) => {
   const { currentPassword, newPassword } = req.body;

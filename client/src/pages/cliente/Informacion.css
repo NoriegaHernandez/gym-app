@@ -1,0 +1,396 @@
+/* client/src/pages/cliente/Informacion.css */
+
+/* Contenedor principal */
+.profile-container {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.profile-container h2 {
+  font-size: 1.7rem;
+  margin-bottom: 20px;
+  color: #333;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 10px;
+}
+
+/* Tarjeta de perfil */
+.profile-card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  margin-bottom: 30px;
+  width: 100%;
+  position: relative;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.profile-header h3 {
+  font-size: 1.4rem;
+  color: #333;
+  margin: 0;
+}
+
+/* Botón de editar */
+.edit-button {
+  background: linear-gradient(to right, #ff9966, #ffdb58);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: bold;
+  transition: transform 0.2s;
+}
+
+.edit-button:hover {
+  transform: scale(1.05);
+}
+
+.edit-icon {
+  font-size: 1.1rem;
+}
+
+/* Avatar del perfil */
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: #ff9a44;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 25px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-placeholder {
+  font-size: 3rem;
+  font-weight: bold;
+  color: white;
+}
+
+/* Información del perfil */
+.profile-info {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.profile-info h3 {
+  font-size: 1.5rem;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.profile-info .email {
+  color: #666;
+  margin-bottom: 25px;
+  font-size: 1.1rem;
+}
+
+/* Grid de información */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  text-align: left;
+}
+
+.info-item {
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.info-item .label {
+  display: block;
+  color: #666;
+  margin-bottom: 5px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.info-item .value {
+  color: #333;
+  font-size: 1.1rem;
+}
+
+/* Mensajes de actualización */
+.update-message {
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.update-message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.update-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Formulario de edición */
+.edit-form-container {
+  width: 100%;
+  padding: 20px 0;
+  box-sizing: border-box;
+}
+
+.edit-form-container form {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  box-sizing: border-box;
+  background-color: #1a1a1a;
+  color: white;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #ff9a44;
+  box-shadow: 0 0 0 2px rgba(255, 154, 68, 0.2);
+}
+
+/* Estilo especial para input de fecha */
+.form-group input[type="date"] {
+  background-color: #1a1a1a;
+  color: white;
+  padding-right: 30px;
+}
+
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+/* Estilo para placeholders */
+.form-group input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Botones del formulario */
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  width: 100%;
+  gap: 15px;
+  box-sizing: border-box;
+}
+
+.cancel-button, .save-button {
+  padding: 12px 0;
+  border: none;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.1s;
+  width: 48%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.cancel-button {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.save-button {
+  background: linear-gradient(to right, #ff9966, #ffdb58);
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #e4e4e4;
+}
+
+.save-button:hover {
+  transform: scale(1.05);
+}
+
+.cancel-button:active, .save-button:active {
+  transform: scale(0.98);
+}
+
+.cancel-button:disabled, .save-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Sección de información adicional */
+.information-section {
+  margin-top: 40px;
+  width: 100%;
+}
+
+.information-section h3 {
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.information-section p {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.contact-info {
+  background-color: #e3f2fd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 30px;
+  border-left: 4px solid #2196F3;
+}
+
+.contact-info h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #0d47a1;
+  font-size: 1.1rem;
+}
+
+.contact-info p {
+  margin: 5px 0;
+  color: #1565c0;
+}
+
+/* Mensajes de error y carga */
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border-left: 4px solid #c62828;
+  font-size: 1rem;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  min-height: 400px;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #2196F3;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .edit-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-buttons {
+    flex-direction: column;
+  }
+  
+  .cancel-button, .save-button {
+    width: 100%;
+  }
+  
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .avatar-placeholder {
+    font-size: 2.5rem;
+  }
+  
+  .edit-form-container form {
+    padding: 0 10px;
+  }
+}
+
+/* Estilo para cuando está en modo edición */
+.profile-card.edit-mode {
+  padding-top: 20px;
+}
+
+/* Para asegurar compatibilidad con el diseño de Membresía */
+.container .profile-container,
+.container .profile-card,
+.container .form-group {
+  box-sizing: border-box;
+}
+
+/* Fix para posibles problemas de scroll en iOS */
+@supports (-webkit-overflow-scrolling: touch) {
+  .main-content {
+    -webkit-overflow-scrolling: touch;
+  }
+}

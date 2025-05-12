@@ -766,4 +766,357 @@ router.get('/verification/pending', authMiddleware, adminMiddleware, async (req,
   }
 });
 
+router.get('/users-with-memberships', authMiddleware, async (req, res) => {
+  // Verificar que el usuario sea administrador
+  if (req.user.type !== 'administrador') {
+    return res.status(403).json({ message: 'Acceso denegado' });
+  }
+  
+  try {
+    const pool = await connectDB();
+    
+    const result = await pool.request()
+      .query(`
+        SELECT * FROM vw_usuarios_membresias
+        ORDER BY nombre
+      `);
+    
+    res.json(result.recordset);
+  } catch (error) {
+    console.error('Error al obtener usuarios con membresías:', error);
+    res.status(500).json({ message: 'Error del servidor' });
+  }
+});
+
+// Ruta para obtener todos los planes disponibles
+router.get('/plans', authMiddleware, async (req, res) => {
+  // Verificar que el usuario sea administrador
+  if (req.user.type !== 'administrador') {
+    return res.status(403).json({ message: 'Acceso denegado' });
+  }
+  
+  try {
+    const pool = await connectDB();
+    
+    const result = await pool.request()
+      .query(`
+        SELECT 
+          id_plan, 
+          nombre, 
+          descripcion, 
+          precio, 
+          duracion_dias
+        FROM Planes
+        ORDER BY precio ASC
+      `);
+    
+    res.json(result.recordset);
+  } catch (error) {
+    console.error('Error al obtener planes:', error);
+    res.status(500).json({ message: 'Error del servidor' });
+  }
+});
+
+// Ruta para crear una nueva membresía
+router.post('/memberships', authMiddleware, async (req, res) => {
+  // Verificar que el usuario sea administrador
+  if (req.user.type !== 'administrador') {
+    return res.status(403).json({ message: 'Acceso denegado' });
+  }
+  
+  const { 
+    id_usuario,
+    id_plan, 
+    tipo_plan,
+    fecha_inicio,
+    duracion_dias,
+    precio_pagado,
+    metodo_pago
+  } = req.body;
+  
+  if (!id_usuario || !id_plan || !tipo_plan) {
+    return res.status(400).json({ message: 'Faltan datos obligatorios' });
+  }
+  
+  try {
+    const pool = await connectDB();
+    
+    const result = await pool.request()
+      .input('accion', sql.VarChar, 'crear')
+      .input('id_usuario', sql.Int, id_usuario)
+      .input('id_plan', sql.Int, id_plan)
+      .input('tipo_plan', sql.VarChar, tipo_plan)
+      .input('fecha_inicio', sql.Date, fecha_inicio ? new Date(fecha_inicio) : null)
+      .input('duracion_dias', sql.Int, duracion_dias)
+      .input('precio_pagado', sql.Decimal(10, 2), precio_pagado)
+      .input('metodo_pago', sql.VarChar, metodo_pago || null)
+      .input('id_admin', sql.Int, req.user.id)
+      .execute('sp_GestionarMembresia');
+    
+    // Obtener información completa de la membresía creada
+    const membershipId = result.recordset[0].id_suscripcion;
+    
+    const membershipResult = await pool.request()
+      .input('id_suscripcion', sql.Int, membershipId)
+      .query(`
+        SELECT 
+          s.*,
+          p.nombre AS nombre_plan,
+          u.nombre AS nombre_usuario,
+          u.email AS email_usuario
+        FROM Suscripciones s
+        JOIN Planes p ON s.id_plan = p.id_plan
+        JOIN Usuarios u ON s.id_usuario = u.id_usuario
+        WHERE s.id_suscripcion = @id_suscripcion
+      `);
+    
+    res.status(201).json(membershipResult.recordset[0]);
+  } catch (error) {
+    console.error('Error al crear membresía:', error);
+    res.status(500).json({ 
+      message: 'Error al crear membresía', 
+      error: error.message 
+    });
+  }
+});
+
+// Ruta para actualizar una membresía existente
+router.put('/memberships/:id', authMiddleware, async (req, res) => {
+  // Verificar que el usuario sea administrador
+  if (req.user.type !== 'administrador') {
+    return res.status(403).json({ message: 'Acceso denegado' });
+  }
+  
+  const { id } = req.params;
+  const { 
+    id_plan, 
+    tipo_plan,
+    fecha_inicio,
+    duracion_dias,
+    precio_pagado,
+    metodo_pago
+  } = req.body;
+  
+  try {
+    const pool = await connectDB();
+    
+    // Verificar que la membresía exista
+    const checkResult = await pool.request()
+      .input('id', sql.Int, id)
+      .query('SELECT id_usuario FROM Suscripciones WHERE id_suscripcion = @id');
+    
+    if (checkResult.recordset.length === 0) {
+      return res.status(404).json({ message: 'Membresía no encontrada' });
+    }
+    
+    const userId = checkResult.recordset[0].id_usuario;
+    
+    const result = await pool.request()
+      .input('accion', sql.VarChar, 'actualizar')
+      .input('id_usuario', sql.Int, userId)
+      .input('id_suscripcion', sql.Int, id)
+      .input('id_plan', sql.Int, id_plan)
+      .input('tipo_plan', sql.VarChar, tipo_plan)
+      .input('fecha_inicio', sql.Date, fecha_inicio ? new Date(fecha_inicio) : null)
+      .input('duracion_dias', sql.Int, duracion_dias)
+      .input('precio_pagado', sql.Decimal(10, 2), precio_pagado)
+      .input('metodo_pago', sql.VarChar, metodo_pago)
+      .input('id_admin', sql.Int, req.user.id)
+      .execute('sp_GestionarMembresia');
+    
+    // Obtener información actualizada
+    const membershipResult = await pool.request()
+      .input('id_suscripcion', sql.Int, id)
+      .query(`
+        SELECT 
+          s.*,
+          p.nombre AS nombre_plan,
+          u.nombre AS nombre_usuario,
+          u.email AS email_usuario
+        FROM Suscripciones s
+        JOIN Planes p ON s.id_plan = p.id_plan
+        JOIN Usuarios u ON s.id_usuario = u.id_usuario
+        WHERE s.id_suscripcion = @id_suscripcion
+      `);
+    
+    res.json(membershipResult.recordset[0]);
+  } catch (error) {
+    console.error('Error al actualizar membresía:', error);
+    res.status(500).json({ 
+      message: 'Error al actualizar membresía', 
+      error: error.message 
+    });
+  }
+});
+
+// Ruta para cancelar una membresía
+router.post('/memberships/:id/cancel', authMiddleware, async (req, res) => {
+  // Verificar que el usuario sea administrador
+  if (req.user.type !== 'administrador') {
+    return res.status(403).json({ message: 'Acceso denegado' });
+  }
+  
+  const { id } = req.params;
+  
+  try {
+    const pool = await connectDB();
+    
+    // Verificar que la membresía exista
+    const checkResult = await pool.request()
+      .input('id', sql.Int, id)
+      .query('SELECT id_usuario FROM Suscripciones WHERE id_suscripcion = @id');
+    
+    if (checkResult.recordset.length === 0) {
+      return res.status(404).json({ message: 'Membresía no encontrada' });
+    }
+    
+    const userId = checkResult.recordset[0].id_usuario;
+    
+    await pool.request()
+      .input('accion', sql.VarChar, 'cancelar')
+      .input('id_usuario', sql.Int, userId)
+      .input('id_suscripcion', sql.Int, id)
+      .input('id_admin', sql.Int, req.user.id)
+      .execute('sp_GestionarMembresia');
+    
+    res.json({ message: 'Membresía cancelada correctamente' });
+  } catch (error) {
+    console.error('Error al cancelar membresía:', error);
+    res.status(500).json({ 
+      message: 'Error al cancelar membresía', 
+      error: error.message 
+    });
+  }
+});
+
+// Ruta para renovar una membresía
+router.post('/memberships/:id/renew', authMiddleware, async (req, res) => {
+  // Verificar que el usuario sea administrador
+  if (req.user.type !== 'administrador') {
+    return res.status(403).json({ message: 'Acceso denegado' });
+  }
+  
+  const { id } = req.params;
+  const { 
+    id_plan, 
+    tipo_plan,
+    fecha_inicio,
+    duracion_dias,
+    precio_pagado,
+    metodo_pago
+  } = req.body;
+  
+  if (!id_plan || !tipo_plan || !duracion_dias) {
+    return res.status(400).json({ message: 'Faltan datos obligatorios' });
+  }
+  
+  try {
+    const pool = await connectDB();
+    
+    // Verificar que la membresía exista
+    const checkResult = await pool.request()
+      .input('id', sql.Int, id)
+      .query('SELECT id_usuario FROM Suscripciones WHERE id_suscripcion = @id');
+    
+    if (checkResult.recordset.length === 0) {
+      return res.status(404).json({ message: 'Membresía no encontrada' });
+    }
+    
+    const userId = checkResult.recordset[0].id_usuario;
+    
+    const result = await pool.request()
+      .input('accion', sql.VarChar, 'renovar')
+      .input('id_usuario', sql.Int, userId)
+      .input('id_suscripcion', sql.Int, id)
+      .input('id_plan', sql.Int, id_plan)
+      .input('tipo_plan', sql.VarChar, tipo_plan)
+      .input('fecha_inicio', sql.Date, fecha_inicio ? new Date(fecha_inicio) : null)
+      .input('duracion_dias', sql.Int, duracion_dias)
+      .input('precio_pagado', sql.Decimal(10, 2), precio_pagado)
+      .input('metodo_pago', sql.VarChar, metodo_pago || null)
+      .input('id_admin', sql.Int, req.user.id)
+      .execute('sp_GestionarMembresia');
+    
+    // Obtener información de la nueva membresía
+    const membershipId = result.recordset[0].id_suscripcion;
+    
+    const membershipResult = await pool.request()
+      .input('id_suscripcion', sql.Int, membershipId)
+      .query(`
+        SELECT 
+          s.*,
+          p.nombre AS nombre_plan,
+          u.nombre AS nombre_usuario,
+          u.email AS email_usuario
+        FROM Suscripciones s
+        JOIN Planes p ON s.id_plan = p.id_plan
+        JOIN Usuarios u ON s.id_usuario = u.id_usuario
+        WHERE s.id_suscripcion = @id_suscripcion
+      `);
+    
+    res.status(201).json(membershipResult.recordset[0]);
+  } catch (error) {
+    console.error('Error al renovar membresía:', error);
+    res.status(500).json({ 
+      message: 'Error al renovar membresía', 
+      error: error.message 
+    });
+  }
+});
+
+// Ruta para obtener el historial de membresías de un usuario
+router.get('/users/:userId/membership-history', authMiddleware, async (req, res) => {
+  // Verificar que el usuario sea administrador
+  if (req.user.type !== 'administrador') {
+    return res.status(403).json({ message: 'Acceso denegado' });
+  }
+  
+  const { userId } = req.params;
+  
+  try {
+    const pool = await connectDB();
+    
+    // Verificar que el usuario exista
+    const userCheck = await pool.request()
+      .input('userId', sql.Int, userId)
+      .query('SELECT id_usuario FROM Usuarios WHERE id_usuario = @userId');
+    
+    if (userCheck.recordset.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+    
+    const result = await pool.request()
+      .input('userId', sql.Int, userId)
+      .query(`
+        SELECT 
+          s.id_suscripcion,
+          s.id_plan,
+          p.nombre AS nombre_plan,
+          s.tipo_plan,
+          s.fecha_inicio,
+          s.fecha_fin,
+          s.estado,
+          s.precio_pagado,
+          s.metodo_pago,
+          s.fecha_ultima_actualizacion,
+          admin.nombre AS nombre_admin
+        FROM 
+          Suscripciones s
+        JOIN 
+          Planes p ON s.id_plan = p.id_plan
+        LEFT JOIN 
+          Usuarios admin ON s.id_admin_ultima_actualizacion = admin.id_usuario
+        WHERE 
+          s.id_usuario = @userId
+        ORDER BY 
+          s.fecha_inicio DESC
+      `);
+    
+    res.json(result.recordset);
+  } catch (error) {
+    console.error('Error al obtener historial de membresías:', error);
+    res.status(500).json({ message: 'Error del servidor' });
+  }
+});
+
 module.exports = router;

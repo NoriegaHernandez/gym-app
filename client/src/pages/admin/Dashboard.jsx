@@ -1,13 +1,11 @@
-// export default AdminDashboard;
+
 // client/src/pages/admin/Dashboard.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import './AdminStyles.css';
-import './CoachFixes.css';
-import './DashboardFixes.css'; // Asegúrate de tener este archivo CSS para estilos específicos
 
+import './AdminDashboardStyles.css'; // Estilos específicos para admin
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -23,14 +21,14 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [loadingActivity, setLoadingActivity] = useState(false);
   const [error, setError] = useState(null);
-  const [refreshTrigger, setRefreshTrigger] = useState(0); // Para forzar actualizaciones
+  const [refreshTrigger, setRefreshTrigger] = useState(0); 
   
   // Estados para interactividad
-  const [timeFilter, setTimeFilter] = useState('all'); // 'today', 'week', 'month', 'all'
-  const [activityFilter, setActivityFilter] = useState('all'); // 'all', 'new_user', 'subscription_renewal', 'coach_assignment'
+  const [timeFilter, setTimeFilter] = useState('all');
+  const [activityFilter, setActivityFilter] = useState('all');
   const [filteredActivity, setFilteredActivity] = useState([]);
   const [showAllActivity, setShowAllActivity] = useState(false);
-  const [statsTimeframe, setStatsTimeframe] = useState('month'); // 'week', 'month', 'year'
+  const [statsTimeframe, setStatsTimeframe] = useState('month');
   const [statsComparisonData, setStatsComparisonData] = useState({
     totalUsers: { current: 0, previous: 0 },
     activeUsers: { current: 0, previous: 0 },
@@ -46,7 +44,6 @@ const AdminDashboard = () => {
 
   // Verificar autenticación y cargar datos iniciales
   useEffect(() => {
-    // Verificar si el usuario está autenticado
     if (!user) {
       navigate('/login');
       return;
@@ -54,16 +51,14 @@ const AdminDashboard = () => {
 
     fetchDashboardData();
 
-    // Configurar actualización automática cada 30 segundos
     const intervalId = setInterval(() => {
       console.log('Actualizando datos automáticamente...');
       fetchDashboardData();
     }, 30000);
 
-    // Limpiar intervalo al desmontar componente
     return () => clearInterval(intervalId);
     
-  }, [user, navigate, refreshTrigger]); // Incluir refreshTrigger para forzar actualizaciones
+  }, [user, navigate, refreshTrigger]);
 
   // Cargar datos del dashboard
   const fetchDashboardData = async () => {
@@ -71,17 +66,14 @@ const AdminDashboard = () => {
       setLoading(true);
       setError(null);
       
-      // Obtener estadísticas principales
       const statsResponse = await api.getAdminStats(statsTimeframe);
       console.log('Estadísticas obtenidas:', statsResponse);
       setStats(statsResponse);
       
-      // Obtener datos comparativos
       const comparisonResponse = await api.getStatsComparison(statsTimeframe);
       console.log('Datos comparativos obtenidos:', comparisonResponse);
       setStatsComparisonData(comparisonResponse);
       
-      // Obtener actividad reciente (inicialmente sin filtros, limitado a 3)
       const activityFilters = { limit: 3 };
       const activityResponse = await api.getRecentActivity(activityFilters);
       console.log('Actividad reciente obtenida:', activityResponse);
@@ -115,11 +107,9 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       
-      // Obtener estadísticas principales para el período seleccionado
       const statsResponse = await api.getAdminStats(timeframe);
       setStats(statsResponse);
       
-      // Obtener datos comparativos para el período seleccionado
       const comparisonResponse = await api.getStatsComparison(timeframe);
       setStatsComparisonData(comparisonResponse);
       
@@ -136,14 +126,12 @@ const AdminDashboard = () => {
     try {
       setLoadingActivity(true);
       
-      // Construir filtros
       const filters = {
         type: activityFilter !== 'all' ? activityFilter : undefined,
         timeFilter: timeFilter !== 'all' ? timeFilter : undefined,
-        limit: showAllActivity ? 20 : 3 // Limitar a 3 si no se muestra todo
+        limit: showAllActivity ? 20 : 3
       };
       
-      // Obtener actividad filtrada
       const activityResponse = await api.getRecentActivity(filters);
       setFilteredActivity(activityResponse);
       
@@ -163,7 +151,6 @@ const AdminDashboard = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      // Redireccionar a la página de inicio de sesión después de cerrar sesión
       navigate('/login');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
@@ -173,7 +160,7 @@ const AdminDashboard = () => {
 
   // Función para calcular el cambio porcentual
   const calculatePercentChange = (current, previous) => {
-    if (previous === 0) return current > 0 ? 100 : 0; // Si no había datos previos
+    if (previous === 0) return current > 0 ? 100 : 0;
     return Math.round(((current - previous) / previous) * 100);
   };
 
@@ -182,7 +169,6 @@ const AdminDashboard = () => {
     const percentChange = calculatePercentChange(current, previous);
     const isPositive = current >= previous;
     
-    // Si ambos valores son 0, no mostrar indicador
     if (current === 0 && previous === 0) {
       return <div className="trend-indicator neutral">Sin cambios</div>;
     }
@@ -223,42 +209,84 @@ const AdminDashboard = () => {
     }
   };
 
-  return (
-    <div className="admin-container">
-      <div className="admin-sidebar">
-        <div className="admin-logo">
-          <h2>FitnessGym</h2>
+  // return (
+  //   <div className="container">
+  //     <div className="sidebar">
+  //       <div className="logo">
+  //         <div className="logo-circle">
+  //           <img src="/logo.png" alt="Logo Gimnasio" className='logo-img' />
+  //         </div>
+  //       </div>
+        
+  //       <div className="menu-buttons">
+  //         <button className="menu-button active">Dashboard</button>
+  //         <button className="menu-button" onClick={() => navigate('/admin/coaches')}>Gestión de Coaches</button>
+  //         <button className="menu-button" onClick={() => navigate('/admin/usuarios')}>Usuarios</button>
+  //         <button className="menu-button" onClick={() => navigate('/admin/membresias')}>Membresías</button>
+  //         <button className="menu-button" onClick={handleLogout}>Cerrar sesión</button>
+  //       </div>
+  //     </div>
+      
+  //     <div className="main-content">
+  //       <div className="user-card">
+  //         <div className="user-avatar">
+  //           <img src="/src/assets/icons/admin.png" alt="Admin Avatar" width="50" height="50" />
+  //         </div>
+  //         <div className="user-info">
+  //           <div className="user-name">{user?.name || 'Administrador'}</div>
+  //           <div className="membership-details">
+  //             <span>Administrador del Sistema</span>
+  //             <span>Panel de Control</span>
+  //           </div>
+  //         </div>
+  //         <button 
+  //           className="refresh-button" 
+  //           onClick={refreshData} 
+  //           title="Actualizar datos"
+  //         >
+  //           🔄 Actualizar
+  //         </button>
+  //       </div>
+        
+  //       {error && (
+  //         <div className="error-message">
+  //           {error}
+  //           <button className="error-close" onClick={() => setError(null)}>×</button>
+  //         </div>
+  //       )}
+        
+  //       {loading ? (
+  //         <div className="loading-container">
+  //           <div className="spinner"></div>
+  //           <p>Cargando datos del dashboard...</p>
+  //         </div>
+  //       ) : (
+
+ return (
+  <div className="container">
+    <div className="sidebar">
+      <div className="logo">
+        <div className="logo-circle">
+          <img src="/logo.png" alt="Logo Gimnasio" className='logo-img' />
         </div>
-        <nav className="admin-nav">
-          <button className="admin-nav-button active">Dashboard</button>
-          <button className="admin-nav-button" onClick={() => navigate('/admin/coaches')}>Gestión de Coaches</button>
-          <button className="admin-nav-button" onClick={() => navigate('/admin/usuarios')}>Usuarios</button>
-          <button className="admin-nav-button" onClick={() => navigate('/admin/membresias')}>Membresías</button>
-          <button className="admin-nav-button" onClick={handleLogout}>Cerrar sesión</button>
-        </nav>
       </div>
       
-      <div className="admin-content">
-        <div className="admin-header">
-          <h1>Dashboard de Administrador</h1>
-          <div className="admin-profile">
-            <div className="admin-header-actions">
-              <button 
-                className="refresh-button" 
-                onClick={refreshData} 
-                title="Actualizar datos"
-              >
-                🔄 Actualizar
-              </button>
-              <span>{user?.name || 'Administrador'}</span>
-            </div>
-          </div>
-        </div>
-        
+      <div className="menu-buttons">
+        <button className="menu-button active">Dashboard</button>
+        <button className="menu-button" onClick={() => navigate('/admin/coaches')}>Gestión de Coaches</button>
+        <button className="menu-button" onClick={() => navigate('/admin/usuarios')}>Usuarios</button>
+        <button className="menu-button" onClick={() => navigate('/admin/membresias')}>Membresías</button>
+        <button className="menu-button" onClick={handleLogout}>Cerrar sesión</button>
+      </div>
+    </div>
+    
+    <div className="main-content">
+      <div className="content-wrapper">
+        {/* Mover los mensajes de error y loading antes de la user-card para mejorar visibilidad */}
         {error && (
-          <div className="admin-alert admin-error">
-            <p>{error}</p>
-            <button className="admin-alert-close" onClick={() => setError(null)}>×</button>
+          <div className="error-message">
+            {error}
+            <button className="error-close" onClick={() => setError(null)}>×</button>
           </div>
         )}
         
@@ -269,6 +297,30 @@ const AdminDashboard = () => {
           </div>
         ) : (
           <>
+            <div className="user-card">
+              <div className="user-avatar">
+                <img src="/src/assets/icons/admin.png" alt="Admin Avatar" width="50" height="50" />
+              </div>
+              <div className="user-info">
+                <div className="user-name">{user?.name || 'Administrador'}</div>
+                <div className="membership-details">
+                  <span>Administrador del Sistema</span>
+                  <span>Panel de Control</span>
+                </div>
+              </div>
+              <button 
+                className="refresh-button" 
+                onClick={refreshData} 
+                title="Actualizar datos"
+              >
+                🔄 Actualizar
+              </button>
+            </div>
+            
+            <h1 className="page-title">Dashboard de Administrador</h1>
+            
+            <div className="dashboard-container">
+           
             <div className="stats-timeframe-selector">
               <span>Ver estadísticas comparadas con: </span>
               <div className="timeframe-buttons">
@@ -403,10 +455,10 @@ const AdminDashboard = () => {
               </div>
             </div>
             
-            <div className="admin-row">
+            <div className="admin-cards-row">
               <div className="admin-card">
                 <div className="card-header-with-actions">
-                  <h2>Actividad Reciente</h2>
+                  <h3>Actividad Reciente</h3>
                   <div className="activity-filters">
                     <select 
                       value={activityFilter}
@@ -443,7 +495,7 @@ const AdminDashboard = () => {
                       <p>No hay actividades que coincidan con los filtros seleccionados.</p>
                       <p>Las actividades se registrarán automáticamente cuando los usuarios realicen acciones en el sistema.</p>
                       <button 
-                        className="admin-secondary-button" 
+                        className="secondary-button" 
                         onClick={refreshData}
                         style={{ marginTop: '10px' }}
                       >
@@ -467,7 +519,7 @@ const AdminDashboard = () => {
                 </div>
                 
                 <button 
-                  className="admin-secondary-button view-all"
+                  className="view-all-button"
                   onClick={() => setShowAllActivity(!showAllActivity)}
                   disabled={filteredActivity.length === 0}
                 >
@@ -476,7 +528,7 @@ const AdminDashboard = () => {
               </div>
               
               <div className="admin-card">
-                <h2>Acciones Rápidas</h2>
+                <h3>Acciones Rápidas</h3>
                 
                 <div className="quick-actions">
                   <button className="quick-action-button" onClick={() => navigate('/admin/usuarios/nuevo')}>
@@ -501,10 +553,13 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
+          </div>
           </>
         )}
+        
       </div>
     </div>
+  </div>
   );
 };
 

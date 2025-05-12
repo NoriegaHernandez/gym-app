@@ -1,0 +1,868 @@
+
+/* client/src/pages/admin/UserManagementStyles.css */
+
+/* Contenedor principal */
+.users-management-container {
+  margin-top: 20px;
+  width: 100%;
+}
+
+/* Toolbar */
+.toolbar {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* Contenedor de búsqueda y filtros */
+.search-filter-container {
+  display: flex;
+  gap: 15px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+/* Caja de búsqueda */
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 250px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 15px 10px 40px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #ff9a44;
+  box-shadow: 0 0 0 2px rgba(255, 154, 68, 0.2);
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 16px;
+}
+
+/* Contenedor de filtros */
+.filter-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-select {
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 14px;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #ff9a44;
+  box-shadow: 0 0 0 2px rgba(255, 154, 68, 0.2);
+}
+
+/* Botones primarios y secundarios */
+.primary-button, .secondary-button {
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.primary-button {
+  background: linear-gradient(to right, #ff9966, #ffdb58);
+  color: white;
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 154, 68, 0.3);
+}
+
+.secondary-button {
+  background-color: #f1f1f1;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.secondary-button:hover {
+  background-color: #e4e4e4;
+  border-color: #ccc;
+}
+
+.danger-button {
+  background-color: #dc3545;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.danger-button:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+}
+
+/* Tabla de datos */
+.table-responsive {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table thead {
+  background-color: #f8f9fa;
+}
+
+.data-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #555;
+  border-bottom: 2px solid #dee2e6;
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 15px;
+  border-bottom: 1px solid #dee2e6;
+  color: #333;
+}
+
+.data-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Badges de estado y tipo */
+.status-badge, .type-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-badge.status-active {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+  border: 1px solid #4CAF50;
+}
+
+.status-badge.status-pending {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #FFC107;
+  border: 1px solid #FFC107;
+}
+
+.status-badge.status-inactive {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+  border: 1px solid #f44336;
+}
+
+.status-badge.status-suspended {
+  background-color: rgba(96, 125, 139, 0.1);
+  color: #607D8B;
+  border: 1px solid #607D8B;
+}
+
+.type-badge.type-client {
+  background-color: rgba(33, 150, 243, 0.1);
+  color: #2196F3;
+  border: 1px solid #2196F3;
+}
+
+.type-badge.type-coach {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: #FF9800;
+  border: 1px solid #FF9800;
+}
+
+.type-badge.type-admin {
+  background-color: rgba(156, 39, 176, 0.1);
+  color: #9C27B0;
+  border: 1px solid #9C27B0;
+}
+
+/* Badges de membresía */
+.membership-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.membership-badge.active {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+  border: 1px solid #4CAF50;
+}
+
+.membership-badge.inactive {
+  background-color: rgba(158, 158, 158, 0.1);
+  color: #9E9E9E;
+  border: 1px solid #9E9E9E;
+}
+
+.membership-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.membership-detail {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Botones de acción */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.action-button:hover {
+  background-color: #f0f0f0;
+}
+
+.action-button.view:hover {
+  background-color: #e3f2fd;
+}
+
+.action-button.edit:hover {
+  background-color: #fff3e0;
+}
+
+.action-button.delete:hover {
+  background-color: #ffebee;
+}
+
+.action-button.membership:hover {
+  background-color: #f3e5f5;
+}
+
+.action-button.membership-mini {
+  font-size: 0.85rem;
+  padding: 4px 10px;
+  background-color: #f0f0f0;
+  border-radius: 15px;
+}
+
+.action-button.membership-mini:hover {
+  background-color: #e0e0e0;
+}
+
+/* Estado vacío */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-container {
+  background-color: white;
+  border-radius: 10px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modal-container.large {
+  max-width: 900px;
+}
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.modal-close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.modal-close-button:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.modal-content {
+  padding: 20px;
+}
+
+/* Formulario */
+.user-form, .membership-form {
+  width: 100%;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #ff9a44;
+  box-shadow: 0 0 0 2px rgba(255, 154, 68, 0.2);
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+/* Detalles del usuario */
+.user-details {
+  text-align: center;
+}
+
+.user-avatar-large {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: #ff9a44;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-placeholder {
+  font-size: 3rem;
+  font-weight: bold;
+  color: white;
+}
+
+.user-info-header {
+  margin-bottom: 30px;
+}
+
+.user-info-header h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.user-info-header p {
+  margin: 0 0 15px 0;
+  color: #666;
+}
+
+.user-badges {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  text-align: left;
+  margin-bottom: 30px;
+}
+
+.info-item {
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.info-item label {
+  display: block;
+  color: #666;
+  margin-bottom: 5px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.info-item span {
+  color: #333;
+  font-size: 1rem;
+}
+
+/* Sección de membresía */
+.membership-section {
+  margin-top: 30px;
+  padding-top: 30px;
+  border-top: 1px solid #eee;
+}
+
+.membership-section h4 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.membership-status-info {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.membership-status-badge {
+  margin-bottom: 15px;
+}
+
+.membership-details-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+/* Acciones del modal */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Confirmación de eliminación */
+.delete-confirmation {
+  text-align: center;
+  padding: 20px;
+}
+
+.delete-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.delete-confirmation h3 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.delete-confirmation p {
+  margin: 10px 0;
+  color: #555;
+  font-size: 1.1rem;
+}
+
+.delete-confirmation strong {
+  color: #333;
+}
+
+/* Mensajes de error y éxito */
+.error-message,
+.success-message {
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  border-left: 4px solid #c62828;
+}
+
+.success-message {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-left: 4px solid #4caf50;
+}
+
+.error-close,
+.success-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 5px;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.error-close:hover,
+.success-close:hover {
+  opacity: 1;
+}
+
+/* Container de carga */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  text-align: center;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #2196F3;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Estilos responsive */
+@media (max-width: 768px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-filter-container {
+    flex-direction: column;
+  }
+  
+  .search-box {
+    min-width: 100%;
+  }
+  
+  .filter-container {
+    flex-direction: column;
+  }
+  
+  .filter-select {
+    width: 100%;
+  }
+  
+  .primary-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .modal-actions button {
+    width: 100%;
+  }
+  
+  .data-table {
+    font-size: 14px;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 10px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+
+/* Botones deshabilitados */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-container {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Asegurar compatibilidad con el diseño principal */
+.container .users-management-container,
+.container .toolbar,
+.container .table-responsive {
+  box-sizing: border-box;
+}
+
+/* Ajuste del contenido principal */
+.content-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.page-title {
+  font-size: 1.8rem;
+  margin: 20px 0;
+  color: #333;
+  font-weight: 600;
+}
+
+/* Gestión de membresías - específico */
+.membership-management {
+  width: 100%;
+}
+
+.membership-management-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.membership-management-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.membership-current-status {
+  margin-bottom: 30px;
+}
+
+.membership-current-status h4 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.current-membership-card {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.membership-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.membership-status-indicator .status-icon {
+  font-size: 2rem;
+}
+
+.membership-status-indicator.active .status-icon {
+  color: #4CAF50;
+}
+
+.membership-status-indicator.inactive .status-icon {
+  color: #f44336;
+}
+
+.status-details {
+  flex: 1;
+}
+
+.status-details strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.status-details span {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.no-membership {
+  text-align: center;
+  color: #666;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.membership-history-section {
+  margin-bottom: 30px;
+}
+
+.membership-history-section h4 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.new-membership-section {
+  margin-top: 30px;
+}
+
+.new-membership-section h4 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* Tablas pequeñas */
+.data-table.small {
+  font-size: 0.9rem;
+}
+
+.data-table.small th,
+.data-table.small td {
+  padding: 10px;
+}
+
+/* Botones pequeños */
+.primary-button.small,
+.secondary-button.small {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}

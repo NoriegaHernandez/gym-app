@@ -1,12 +1,14 @@
 
+// client/src/pages/cliente/Informacion.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import './PerfilUsuarioStyles.css';
+import './Dashboard.css'; // Reutilizamos los estilos
+import './Informacion.css'; // Estilos específicos para información
 
-const PerfilUsuario = () => {
-  const { user } = useAuth();
+const Informacion = () => {
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   
   const [userData, setUserData] = useState(null);
@@ -35,7 +37,6 @@ const PerfilUsuario = () => {
         setLoading(true);
         setError('');
         
-        // Verificar si hay token en localStorage
         const token = localStorage.getItem('token');
         if (!token) {
           console.error('No hay token de autenticación');
@@ -44,12 +45,6 @@ const PerfilUsuario = () => {
           return;
         }
         
-        // Ver datos básicos desde el contexto de autenticación
-        if (user) {
-          console.log('Información básica del usuario desde AuthContext:', user);
-        }
-        
-        // Intentar obtener datos más completos del usuario
         console.log('Intentando cargar datos del usuario...');
         try {
           const response = await api.getCurrentUser();
@@ -57,7 +52,6 @@ const PerfilUsuario = () => {
           
           if (response) {
             setUserData(response);
-            // Inicializar el formulario con los datos actuales
             setFormData({
               nombre: response.nombre || '',
               email: response.email || '',
@@ -71,9 +65,7 @@ const PerfilUsuario = () => {
         } catch (apiError) {
           console.error('Error en la API:', apiError);
           
-          // Si falla, usar los datos del contexto como fallback
           if (user) {
-            console.log('Usando datos del contexto como alternativa');
             const fallbackData = {
               id_usuario: user.id,
               nombre: user.name || user.nombre || 'Usuario',
@@ -104,22 +96,11 @@ const PerfilUsuario = () => {
     fetchUserData();
   }, [user]);
 
-  // Manejar el cierre de sesión
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    logout();
     navigate('/login');
   };
   
-  // Manejar el retorno a la página anterior
-  const handleGoBack = () => {
-    navigate(-1); // Vuelve a la página anterior
-  };
-  
-  // Reintentar cargar los datos
-  const handleRetry = () => {
-    window.location.reload();
-  };
-
   // Manejar cambios en el formulario
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -137,9 +118,8 @@ const PerfilUsuario = () => {
       setSaving(true);
       setUpdateMessage({ type: '', text: '' });
       
-      // Crear un objeto con solo los campos que necesitamos actualizar
       const updateData = {
-        id_usuario: userData.id_usuario, // Asegúrate de incluir el ID
+        id_usuario: userData.id_usuario,
         nombre: formData.nombre,
         email: formData.email,
         telefono: formData.telefono || null,
@@ -149,7 +129,6 @@ const PerfilUsuario = () => {
       
       console.log('Enviando datos actualizados:', updateData);
       
-      // Realizar la solicitud fetch directa
       const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:5000/api/auth/profile', {
         method: 'PUT',
@@ -160,12 +139,10 @@ const PerfilUsuario = () => {
         body: JSON.stringify(updateData)
       });
       
-      // Verificar la respuesta
       if (response.ok) {
         const data = await response.json();
         console.log('Perfil actualizado correctamente:', data);
         
-        // Actualizar el estado local con los nuevos datos
         setUserData({
           ...userData,
           ...updateData
@@ -176,7 +153,6 @@ const PerfilUsuario = () => {
           text: 'Perfil actualizado con éxito' 
         });
         
-        // Salir del modo de edición
         setIsEditing(false);
       } else {
         const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }));
@@ -193,11 +169,9 @@ const PerfilUsuario = () => {
     }
   };
 
-  // Entrar en modo edición
   const handleEdit = () => {
     setIsEditing(true);
     setUpdateMessage({ type: '', text: '' });
-    // Asegurarse de que formData tenga los valores actuales
     setFormData({
       nombre: userData.nombre || '',
       email: userData.email || '',
@@ -207,11 +181,9 @@ const PerfilUsuario = () => {
     });
   };
 
-  // Cancelar la edición
   const handleCancel = () => {
     setIsEditing(false);
     setUpdateMessage({ type: '', text: '' });
-    // Restaurar el formulario con los datos actuales
     setFormData({
       nombre: userData.nombre || '',
       email: userData.email || '',
@@ -221,58 +193,53 @@ const PerfilUsuario = () => {
     });
   };
 
-  // Renderizado del componente
   return (
-    <div className="perfil-container">
-      <div className="perfil-sidebar">
+    <div className="container">
+      <div className="sidebar">
         <div className="logo">
           <div className="logo-circle">
-            <img src="/src/assets/icons/logo.png" alt="Logo Gimnasio" width="60" height="60" />
+            <img src="/logo.png" alt="Logo Gimnasio" className='logo-img' />
           </div>
-          <h2>FitnessGym</h2>
         </div>
         
-        <div className="nav-menu">
-          <div className="nav-item" onClick={() => navigate('/cliente/dashboard')}>Inicio</div>
-          <div className="nav-item" onClick={() => navigate('/cliente/informacion')}>Información</div>
-          <div className="nav-item" onClick={() => navigate('/cliente/membresia')}>Membresía</div>
-          <div className="nav-item" onClick={() => navigate('/cliente/entrenadores')}>Entrenadores</div>
-          <div className="nav-item" onClick={handleLogout}>Cerrar sesión</div>
+        <div className="menu-buttons">
+          <button className="menu-button" onClick={() => navigate('/cliente/dashboard')}>Inicio</button>
+          <button className="menu-button active">Información</button>
+          <button className="menu-button" onClick={() => navigate('/cliente/membresia')}>Membresía</button>
+          <button className="menu-button" onClick={() => navigate('/cliente/entrenadores')}>Entrenadores</button>
+          <button className="menu-button" onClick={handleLogout}>Cerrar sesión</button>
         </div>
       </div>
       
-      <div className="perfil-content">
-        <h1>Mi Perfil</h1>
-        
-        {/* Contenedor para los botones de navegación */}
-        <div className="buttons-container">
-          <button className="back-button" onClick={handleGoBack}>
-            ← Regresar
-          </button>
-          
-          {/* Botón editar (solo se muestra si hay datos de usuario y no está en modo edición) */}
-          {userData && !isEditing && (
-            <button className="edit-button-inline" onClick={handleEdit}>
-              <span className="edit-icon">✏️</span> Editar Perfil
-            </button>
-          )}
+      <div className="main-content">
+        <div className="user-card">
+          <div className="user-avatar">
+            <img src="/src/assets/icons/usuario.png" alt="Avatar" width="50" height="50" />
+          </div>
+          <div className="user-info">
+            <div className="user-name">{user?.name || 'Usuario'}</div>
+            <div className="membership-details">
+              <span>Cliente del gimnasio</span>
+              <span>Estado: Activo</span>
+            </div>
+          </div>
         </div>
         
-        {error ? (
+        {error && (
           <div className="error-message">
             {error}
-            <button className="retry-button" onClick={handleRetry}>
-              Reintentar
-            </button>
           </div>
-        ) : loading ? (
-          <div className="loading">
+        )}
+        
+        {loading ? (
+          <div className="loading-container">
             <div className="spinner"></div>
             <p>Cargando información del usuario...</p>
           </div>
-        ) : userData ? (
-          <div className="perfil-card">
-            {/* Mensaje de actualización */}
+        ) : (
+          <div className="profile-container">
+            <h2>Mi Perfil</h2>
+            
             {updateMessage.text && (
               <div className={`update-message ${updateMessage.type}`}>
                 {updateMessage.text}
@@ -280,15 +247,22 @@ const PerfilUsuario = () => {
             )}
             
             {!isEditing ? (
-              <>
-                <div className="perfil-avatar">
+              <div className="profile-card">
+                <div className="profile-header">
+                  <h3>Información Personal</h3>
+                  <button className="edit-button" onClick={handleEdit}>
+                    <span className="edit-icon">✏️</span> Editar
+                  </button>
+                </div>
+                
+                <div className="profile-avatar">
                   <div className="avatar-placeholder">
                     {userData.nombre ? userData.nombre.charAt(0).toUpperCase() : 'U'}
                   </div>
                 </div>
                 
-                <div className="perfil-info">
-                  <h2>{userData.nombre || 'Usuario'}</h2>
+                <div className="profile-info">
+                  <h3>{userData.nombre || 'Usuario'}</h3>
                   <p className="email">{userData.email || ''}</p>
                   
                   <div className="info-grid">
@@ -319,94 +293,119 @@ const PerfilUsuario = () => {
                           : 'No disponible'}
                       </span>
                     </div>
+                    
+                    <div className="info-item">
+                      <span className="label">Tipo de Usuario:</span>
+                      <span className="value">Cliente</span>
+                    </div>
+                    
+                    <div className="info-item">
+                      <span className="label">Estado:</span>
+                      <span className="value">Activo</span>
+                    </div>
                   </div>
                 </div>
-              </>
+              </div>
             ) : (
-              <div className="edit-form-container">
-                <h2>Editar Perfil</h2>
-                <form onSubmit={handleSubmit}>
-                  <div className="form-group">
-                    <label htmlFor="nombre">Nombre:</label>
-                    <input
-                      type="text"
-                      id="nombre"
-                      name="nombre"
-                      value={formData.nombre}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label htmlFor="email">Email:</label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label htmlFor="telefono">Teléfono:</label>
-                    <input
-                      type="tel"
-                      id="telefono"
-                      name="telefono"
-                      value={formData.telefono}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label htmlFor="direccion">Dirección:</label>
-                    <input
-                      type="text"
-                      id="direccion"
-                      name="direccion"
-                      value={formData.direccion}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label htmlFor="fecha_nacimiento">Fecha de Nacimiento:</label>
-                    <input
-                      type="date"
-                      id="fecha_nacimiento"
-                      name="fecha_nacimiento"
-                      value={formData.fecha_nacimiento}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  
-                  <div className="form-buttons">
-                    <button 
-                      type="button" 
-                      className="cancel-button" 
-                      onClick={handleCancel}
-                      disabled={isSaving}
-                    >
-                      Cancelar
-                    </button>
-                    <button 
-                      type="submit" 
-                      className="save-button"
-                      disabled={isSaving}
-                    >
-                      {isSaving ? 'Guardando...' : 'Guardar Cambios'}
-                    </button>
-                  </div>
-                </form>
+              <div className="profile-card edit-mode">
+                <div className="profile-header">
+                  <h3>Editar Información Personal</h3>
+                </div>
+                
+                <div className="edit-form-container">
+                  <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                      <label htmlFor="nombre">Nombre:</label>
+                      <input
+                        type="text"
+                        id="nombre"
+                        name="nombre"
+                        value={formData.nombre}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="form-group">
+                      <label htmlFor="email">Email:</label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="form-group">
+                      <label htmlFor="telefono">Teléfono:</label>
+                      <input
+                        type="tel"
+                        id="telefono"
+                        name="telefono"
+                        value={formData.telefono}
+                        onChange={handleChange}
+                        placeholder="Ej: 5551234567"
+                      />
+                    </div>
+                    
+                    <div className="form-group">
+                      <label htmlFor="direccion">Dirección:</label>
+                      <input
+                        type="text"
+                        id="direccion"
+                        name="direccion"
+                        value={formData.direccion}
+                        onChange={handleChange}
+                        placeholder="Calle, número, colonia, ciudad"
+                      />
+                    </div>
+                    
+                    <div className="form-group">
+                      <label htmlFor="fecha_nacimiento">Fecha de Nacimiento:</label>
+                      <input
+                        type="date"
+                        id="fecha_nacimiento"
+                        name="fecha_nacimiento"
+                        value={formData.fecha_nacimiento}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    
+                    <div className="form-buttons">
+                      <button 
+                        type="button" 
+                        className="cancel-button" 
+                        onClick={handleCancel}
+                        disabled={isSaving}
+                      >
+                        Cancelar
+                      </button>
+                      <button 
+                        type="submit" 
+                        className="save-button"
+                        disabled={isSaving}
+                      >
+                        {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             )}
-          </div>
-        ) : (
-          <div className="empty-state">
-            <p>No hay información disponible</p>
+            
+            <div className="information-section">
+              <h3>Información adicional</h3>
+              <p>Mantenemos tu información segura y protegida. Si necesitas actualizar algún dato adicional o tienes preguntas sobre tu cuenta, no dudes en contactarnos.</p>
+              
+              <div className="contact-info">
+                <h4>¿Necesitas ayuda?</h4>
+                <p>Puedes contactarnos en: <strong>(123) 456-7890</strong></p>
+                <p>Email: <strong>soporte@fitnessgym.com</strong></p>
+                <p>Horario de atención: Lunes a Viernes de 7:00 AM a 10:00 PM</p>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -414,4 +413,4 @@ const PerfilUsuario = () => {
   );
 };
 
-export default PerfilUsuario;
+export default Informacion;

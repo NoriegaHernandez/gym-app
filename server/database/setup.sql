@@ -1065,3 +1065,422 @@ END;
 GRANT EXECUTE ON dbo.sp_ActualizarPerfilUsuario TO [gym_app_user];
 
 select * from Usuarios
+
+use GymSystem
+
+
+-- Primero, aseguremos que la tabla de Suscripciones esté configurada correctamente
+USE GymSystem;
+GO
+
+-- Verificar si la tabla tiene el campo tipo_plan
+IF NOT EXISTS (
+    SELECT * FROM sys.columns 
+    WHERE object_id = OBJECT_ID('Suscripciones') AND name = 'tipo_plan'
+)
+BEGIN
+    ALTER TABLE Suscripciones
+    ADD tipo_plan VARCHAR(20) CHECK(tipo_plan IN ('mensual', 'trimestral', 'anual'));
+END;
+
+-- Agregar campos adicionales si son necesarios
+IF NOT EXISTS (
+    SELECT * FROM sys.columns 
+    WHERE object_id = OBJECT_ID('Suscripciones') AND name = 'precio_pagado'
+)
+BEGIN
+    ALTER TABLE Suscripciones
+    ADD precio_pagado DECIMAL(10,2) DEFAULT 0.00;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM sys.columns 
+    WHERE object_id = OBJECT_ID('Suscripciones') AND name = 'metodo_pago'
+)
+BEGIN
+    ALTER TABLE Suscripciones
+    ADD metodo_pago VARCHAR(50);
+END;
+
+-- Asegurar que los índices existan para mejorar el rendimiento
+IF NOT EXISTS (
+    SELECT * FROM sys.indexes 
+    WHERE name = 'idx_suscripciones_id_usuario' AND object_id = OBJECT_ID('Suscripciones')
+)
+BEGIN
+    CREATE INDEX idx_suscripciones_id_usuario ON Suscripciones(id_usuario);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM sys.indexes 
+    WHERE name = 'idx_suscripciones_estado_fecha' AND object_id = OBJECT_ID('Suscripciones')
+)
+BEGIN
+    CREATE INDEX idx_suscripciones_estado_fecha ON Suscripciones(estado, fecha_fin);
+END;
+
+-- Crear vista para facilitar consultas combinadas de usuarios y membresías
+IF EXISTS (SELECT * FROM sys.views WHERE name = 'vw_usuarios_membresias')
+BEGIN
+    DROP VIEW vw_usuarios_membresias;
+END
+GO
+
+CREATE VIEW vw_usuarios_membresias AS
+SELECT 
+    u.id_usuario,
+    u.nombre,
+    u.email,
+    u.telefono,
+    u.tipo_usuario,
+    u.estado AS estado_usuario,
+    s.id_suscripcion,
+    s.tipo_plan,
+    s.fecha_inicio,
+    s.fecha_fin,
+    s.estado AS estado_membresia,
+    p.nombre AS nombre_plan,
+    p.precio,
+    s.precio_pagado,
+    s.metodo_pago
+FROM 
+    Usuarios u
+LEFT JOIN 
+    Suscripciones s ON u.id_usuario = s.id_usuario AND s.estado = 'activa'
+LEFT JOIN 
+    Planes p ON s.id_plan = p.id_plan
+GO
+
+-- Crear procedimiento almacenado para gestionar membresías
+IF EXISTS (SELECT * FROM sys.procedures WHERE name = 'sp_GestionarMembresia')
+BEGIN
+    DROP PROCEDURE sp_GestionarMembresia;
+END
+GO
+
+CREATE PROCEDURE sp_GestionarMembresia
+    @accion VARCHAR(20), -- 'crear', 'actualizar', 'cancelar', 'renovar'
+    @id_usuario INT,
+    @id_plan INT = NULL,
+    @tipo_plan VARCHAR(20) = NULL,
+    @fecha_inicio DATE = NULL,
+    @duracion_dias INT = NULL,
+    @precio_pagado DECIMAL(10,2) = NULL,
+    @metodo_pago VARCHAR(50) = NULL,
+    @id_admin INT = NULL,
+    @id_suscripcion INT = NULL -- Solo para actualizar o cancelar
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+        DECLARE @estado VARCHAR(20) = 'activa';
+        DECLARE @fecha_fin DATE;
+        
+        -- Validaciones básicas
+        IF @accion NOT IN ('crear', 'actualizar', 'cancelar', 'renovar')
+        BEGIN
+            RAISERROR('Acción no válida. Use: crear, actualizar, cancelar o renovar', 16, 1);
+            RETURN;
+        END
+        
+        -- Verificar que el usuario exista
+        IF NOT EXISTS (SELECT 1 FROM Usuarios WHERE id_usuario = @id_usuario)
+        BEGIN
+            RAISERROR('El usuario no existe', 16, 1);
+            RETURN;
+        END
+        
+        -- Si es crear o renovar, calcular fecha_fin
+        IF @accion IN ('crear', 'renovar')
+        BEGIN
+            IF @fecha_inicio IS NULL
+                SET @fecha_inicio = GETDATE();
+                
+            IF @id_plan IS NULL OR @tipo_plan IS NULL OR @duracion_dias IS NULL
+            BEGIN
+                RAISERROR('Para crear o renovar se requiere: id_plan, tipo_plan y duracion_dias', 16, 1);
+                RETURN;
+            END
+            
+            -- Verificar que el plan exista
+            IF NOT EXISTS (SELECT 1 FROM Planes WHERE id_plan = @id_plan)
+            BEGIN
+                RAISERROR('El plan no existe', 16, 1);
+                RETURN;
+            END
+            
+            -- Calcular fecha de fin
+            SET @fecha_fin = DATEADD(DAY, @duracion_dias, @fecha_inicio);
+            
+            -- Si es renovación, desactivar membresía anterior
+            IF @accion = 'renovar' AND @id_suscripcion IS NOT NULL
+            BEGIN
+                UPDATE Suscripciones
+                SET estado = 'vencida',
+                    id_admin_ultima_actualizacion = @id_admin,
+                    fecha_ultima_actualizacion = GETDATE(),
+                    notas_administrativas = CONCAT(ISNULL(notas_administrativas, ''), CHAR(13), CHAR(10), 'Renovada el ', CONVERT(VARCHAR, GETDATE(), 103))
+                WHERE id_suscripcion = @id_suscripcion;
+            END
+            
+            -- Crear nueva membresía
+            INSERT INTO Suscripciones (
+                id_usuario, 
+                id_plan, 
+                tipo_plan,
+                fecha_inicio, 
+                fecha_fin, 
+                estado,
+                precio_pagado,
+                metodo_pago,
+                id_admin_ultima_actualizacion,
+                fecha_ultima_actualizacion
+            )
+            VALUES (
+                @id_usuario,
+                @id_plan,
+                @tipo_plan,
+                @fecha_inicio,
+                @fecha_fin,
+                @estado,
+                @precio_pagado,
+                @metodo_pago,
+                @id_admin,
+                GETDATE()
+            );
+            
+            SELECT SCOPE_IDENTITY() AS id_suscripcion;
+        END
+        -- Si es actualizar
+        ELSE IF @accion = 'actualizar'
+        BEGIN
+            IF @id_suscripcion IS NULL
+            BEGIN
+                RAISERROR('Para actualizar se requiere el id_suscripcion', 16, 1);
+                RETURN;
+            END
+            
+            -- Verificar que la suscripción exista
+            IF NOT EXISTS (SELECT 1 FROM Suscripciones WHERE id_suscripcion = @id_suscripcion)
+            BEGIN
+                RAISERROR('La suscripción no existe', 16, 1);
+                RETURN;
+            END
+            
+            -- Actualizar suscripción
+            UPDATE Suscripciones
+            SET 
+                id_plan = ISNULL(@id_plan, id_plan),
+                tipo_plan = ISNULL(@tipo_plan, tipo_plan),
+                fecha_inicio = ISNULL(@fecha_inicio, fecha_inicio),
+                fecha_fin = CASE WHEN @duracion_dias IS NOT NULL AND @fecha_inicio IS NOT NULL 
+                                THEN DATEADD(DAY, @duracion_dias, @fecha_inicio)
+                                WHEN @duracion_dias IS NOT NULL 
+                                THEN DATEADD(DAY, @duracion_dias, fecha_inicio)
+                                ELSE fecha_fin END,
+                precio_pagado = ISNULL(@precio_pagado, precio_pagado),
+                metodo_pago = ISNULL(@metodo_pago, metodo_pago),
+                id_admin_ultima_actualizacion = @id_admin,
+                fecha_ultima_actualizacion = GETDATE()
+            WHERE id_suscripcion = @id_suscripcion;
+            
+            SELECT @id_suscripcion AS id_suscripcion;
+        END
+        -- Si es cancelar
+        ELSE IF @accion = 'cancelar'
+        BEGIN
+            IF @id_suscripcion IS NULL
+            BEGIN
+                RAISERROR('Para cancelar se requiere el id_suscripcion', 16, 1);
+                RETURN;
+            END
+            
+            -- Verificar que la suscripción exista
+            IF NOT EXISTS (SELECT 1 FROM Suscripciones WHERE id_suscripcion = @id_suscripcion)
+            BEGIN
+                RAISERROR('La suscripción no existe', 16, 1);
+                RETURN;
+            END
+            
+            -- Cancelar suscripción
+            UPDATE Suscripciones
+            SET 
+                estado = 'cancelada',
+                id_admin_ultima_actualizacion = @id_admin,
+                fecha_ultima_actualizacion = GETDATE(),
+                notas_administrativas = CONCAT(ISNULL(notas_administrativas, ''), CHAR(13), CHAR(10), 'Cancelada el ', CONVERT(VARCHAR, GETDATE(), 103))
+            WHERE id_suscripcion = @id_suscripcion;
+            
+            SELECT @id_suscripcion AS id_suscripcion;
+        END
+        
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END
+GO
+
+-- Otorgar permisos al usuario de la aplicación
+GRANT SELECT ON vw_usuarios_membresias TO [gym_app_user];
+GRANT EXECUTE ON sp_GestionarMembresia TO [gym_app_user];
+
+-- Verify the Planes table has an 'estado' field for active/inactive plans
+IF NOT EXISTS (
+    SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_NAME = 'Planes' AND COLUMN_NAME = 'estado'
+)
+BEGIN
+    ALTER TABLE Planes ADD estado TINYINT DEFAULT 1;
+END
+
+-- Agregar tipo_plan si no existe
+IF NOT EXISTS (
+    SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_NAME = 'Suscripciones' AND COLUMN_NAME = 'tipo_plan'
+)
+BEGIN
+    ALTER TABLE Suscripciones
+    ADD tipo_plan VARCHAR(20)
+    CONSTRAINT CHK_tipo_plan CHECK (tipo_plan IN ('mensual', 'trimestral', 'anual'));
+END
+
+-- Agregar precio_pagado si no existe
+IF NOT EXISTS (
+    SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_NAME = 'Suscripciones' AND COLUMN_NAME = 'precio_pagado'
+)
+BEGIN
+    ALTER TABLE Suscripciones
+    ADD precio_pagado DECIMAL(10,2) NULL;
+END
+
+-- Agregar metodo_pago si no existe
+IF NOT EXISTS (
+    SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_NAME = 'Suscripciones' AND COLUMN_NAME = 'metodo_pago'
+)
+BEGIN
+    ALTER TABLE Suscripciones
+    ADD metodo_pago VARCHAR(50) NULL;
+END
+
+
+
+----
+
+-- Script para corregir el esquema de la base de datos en SQL Server
+
+USE GymSystem;
+GO
+
+-- Verificar si las columnas mencionadas en el error existen, si no, crearlas
+-- Para la tabla Suscripciones
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Suscripciones') AND name = 'tipo_plan')
+BEGIN
+    ALTER TABLE Suscripciones
+    ADD tipo_plan VARCHAR(20);
+    
+    PRINT 'Columna tipo_plan agregada a la tabla Suscripciones';
+END
+
+-- Verificar si existe la columna fecha_fin (que estaría reemplazando a fecha_vencimiento)
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Suscripciones') AND name = 'fecha_fin')
+BEGIN
+    ALTER TABLE Suscripciones
+    ADD fecha_fin DATE;
+    
+    PRINT 'Columna fecha_fin agregada a la tabla Suscripciones';
+END
+
+-- Verificar si existe precio_pagado
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Suscripciones') AND name = 'precio_pagado')
+BEGIN
+    ALTER TABLE Suscripciones
+    ADD precio_pagado DECIMAL(10, 2);
+    
+    PRINT 'Columna precio_pagado agregada a la tabla Suscripciones';
+END
+
+-- Verificar si existe metodo_pago
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Suscripciones') AND name = 'metodo_pago')
+BEGIN
+    ALTER TABLE Suscripciones
+    ADD metodo_pago VARCHAR(50);
+    
+    PRINT 'Columna metodo_pago agregada a la tabla Suscripciones';
+END
+
+-- Verificar si existe estado para Planes
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Planes') AND name = 'estado')
+BEGIN
+    ALTER TABLE Planes
+    ADD estado TINYINT DEFAULT 1;
+    
+    PRINT 'Columna estado agregada a la tabla Planes';
+END
+
+-- Verificar que existen planes en la tabla
+IF NOT EXISTS (SELECT TOP 1 1 FROM Planes)
+BEGIN
+    -- Insertar planes básicos
+    INSERT INTO Planes (nombre, descripcion, precio, duracion_dias, estado)
+    VALUES 
+        ('Plan Básico', 'Acceso a instalaciones básicas y clases grupales', 500, 30, 1),
+        ('Plan Premium', 'Acceso completo a todas las instalaciones y servicios', 900, 30, 1),
+        ('Plan Anual', 'Acceso completo por un año con descuento', 8000, 365, 1);
+    
+    PRINT 'Planes básicos insertados';
+END
+
+-- Ahora vamos a verificar si hay datos en la columna tipo_plan
+-- Si no hay datos, actualicemos todas las suscripciones existentes con un valor predeterminado
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Suscripciones') AND name = 'tipo_plan')
+BEGIN
+    -- Contar cuántos registros no tienen valor en tipo_plan
+    DECLARE @CountNullTipoPlan INT;
+    
+    SELECT @CountNullTipoPlan = COUNT(*) 
+    FROM Suscripciones 
+    WHERE tipo_plan IS NULL;
+    
+    IF @CountNullTipoPlan > 0
+    BEGIN
+        -- Actualizar registros donde tipo_plan es nulo
+        UPDATE Suscripciones
+        SET tipo_plan = 'mensual'
+        WHERE tipo_plan IS NULL;
+        
+        PRINT 'Actualizado ' + CAST(@CountNullTipoPlan AS VARCHAR) + ' registros donde tipo_plan era NULL';
+    END
+END
+
+-- Verificar si hay datos sin fecha_fin
+IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Suscripciones') AND name = 'fecha_inicio')
+AND EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Suscripciones') AND name = 'fecha_fin')
+BEGIN
+    -- Contar cuántos registros no tienen valor en fecha_fin
+    DECLARE @CountNullFechaFin INT;
+    
+    SELECT @CountNullFechaFin = COUNT(*) 
+    FROM Suscripciones 
+    WHERE fecha_fin IS NULL AND fecha_inicio IS NOT NULL;
+    
+    IF @CountNullFechaFin > 0
+    BEGIN
+        -- Actualizar registros donde fecha_fin es nulo pero fecha_inicio no lo es
+        -- Asumiendo suscripciones mensuales (30 días)
+        UPDATE Suscripciones
+        SET fecha_fin = DATEADD(DAY, 30, fecha_inicio)
+        WHERE fecha_fin IS NULL AND fecha_inicio IS NOT NULL;
+        
+        PRINT 'Actualizado ' + CAST(@CountNullFechaFin AS VARCHAR) + ' registros donde fecha_fin era NULL';
+    END
+END
+
+-- Imprimir mensaje de confirmación
+PRINT 'Corrección de esquema completada.';

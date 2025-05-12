@@ -158,7 +158,7 @@ const Entrenadores = () => {
       <div className="sidebar">
         <div className="logo">
           <div className="logo-circle">
-            <img src="/src/assets/icons/logo.png" alt="Logo Gimnasio" width="60" height="60" />
+            <img src="/logo.png" alt="Logo Gimnasio" className="logo-img"/>
           </div>
         </div>
         
