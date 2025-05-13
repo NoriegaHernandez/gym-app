@@ -1,4 +1,3 @@
-
 // server/routes/auth.js - Rutas de autenticación
 const express = require('express');
 const router = express.Router();
@@ -68,7 +67,7 @@ router.post('/login', async (req, res) => {
     }
     
     // Verificar si la cuenta ha sido verificada
-    if (user.estado === 'pendiente') {
+    if (user.estado === 'inactivo') {
       console.log('Usuario pendiente de verificación:', user.email);
       return res.status(401).json({ 
         message: 'Tu cuenta aún no ha sido verificada. Por favor, verifica tu correo electrónico para activar tu cuenta.',
@@ -247,7 +246,7 @@ router.post('/register', async (req, res) => {
             @fecha_nacimiento,
             @tipo_usuario,
             GETDATE(),
-            'pendiente',
+            'inactivo',
             @verification_token,
             @token_expires
         );
@@ -340,7 +339,7 @@ router.get('/verify-email/:token', async (req, res) => {
       .query(`
         SELECT id_usuario, email, token_expires 
         FROM Usuarios 
-        WHERE verification_token = @token AND estado = 'pendiente'
+        WHERE verification_token = @token AND estado = 'inactivo'
       `);
     
     if (result.recordset.length === 0) {
